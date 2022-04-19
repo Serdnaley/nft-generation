@@ -2,8 +2,9 @@
   "name": "medium-tutorial-nft-generation",
   "version": "1.0.0",
   "description": "Generate random NFTs with Node.js + Sourcecode  Link: https://medium.com/@jcmacur/generate-random-nfts-with-node-js-sourcecode-b93a2ab411fe .",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "run": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
