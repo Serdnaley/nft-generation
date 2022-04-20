@@ -2,9 +2,14 @@
   "name": "medium-tutorial-nft-generation",
   "version": "1.0.0",
   "description": "Generate random NFTs with Node.js + Sourcecode  Link: https://medium.com/@jcmacur/generate-random-nfts-with-node-js-sourcecode-b93a2ab411fe .",
-  "main": "src/index.js",
+  "main": "src/server/index.js",
   "scripts": {
-    "run": "node src/index.js",
+    "server:prod": "node src/server/index.js",
+    "server:dev": "nodemon src/server/server.js",
+    "client:serve": "vue-cli-service serve",
+    "client:build": "vue-cli-service build --mode production",
+    "client:lint": "vue-cli-service lint",
+    "client:lint:fix": "vue-cli-service lint --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,8 +24,14 @@
   "homepage": "https://github.com/jcmacur/medium-tutorial-nft-generation#readme",
   "dependencies": {
     "@pinata/sdk": "^1.1.23",
+    "@vue/cli-service": "^5.0.4",
     "dotenv": "^12.0.4",
+    "express": "^4.17.3",
     "fs": "*",
-    "jimp": "^0.16.1"
+    "jimp": "^0.16.1",
+    "lodash": "^4.17.21",
+    "sass": "^1.32.5",
+    "sass-loader": "^10.1.1",
+    "vue": "^3.2.33"
   }
 }

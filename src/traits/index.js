@@ -1,8 +1,8 @@
-const path = require('path')
+const { flatMap, keys, uniqBy } = require('lodash')
 const {
   rarityTypes,
   layerTypes,
-} = require('../enums')
+} = require('./enums')
 
 const prefixByLayerType = {
   [layerTypes.BACKGROUND]: 'Background',
@@ -73,8 +73,8 @@ const traitsConfig = {
   },
 }
 
-const traits = Object.keys(traitsConfig).flatMap((layerType) => {
-  return Object.keys(traitsConfig[layerType]).flatMap((rarityType) => {
+let traits = flatMap(keys(traitsConfig), (layerType) => {
+  return flatMap(keys(traitsConfig[layerType]), (rarityType) => {
     return traitsConfig[layerType][rarityType].map((name) => {
       const prefix = prefixByLayerType[layerType]
       const fileName = `${prefix}_${name}.png`
@@ -83,12 +83,15 @@ const traits = Object.keys(traitsConfig).flatMap((layerType) => {
         layerType,
         rarityType,
         name,
+        prefix,
         fileName,
-        filePath: path.join(__dirname, prefix, fileName),
+        filePath: [prefix, fileName].join('/'),
       }
     })
   })
 })
+
+traits = uniqBy(traits, 'filePath')
 
 module.exports = {
   traitsConfig,
