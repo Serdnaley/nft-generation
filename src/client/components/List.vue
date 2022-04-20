@@ -18,21 +18,21 @@
       <div class="List__actions">
         <Button
           class="List__actions-button"
-          @click="$emit('up')"
+          @click="up(index)"
         >
           Up
         </Button>
 
         <Button
           class="List__actions-button"
-          @click="$emit('down')"
+          @click="down(index)"
         >
           Down
         </Button>
 
         <Button
           class="List__actions-button"
-          @click="$emit('remove')"
+          @click="remove(index)"
         >
           Remove
         </Button>
@@ -50,7 +50,6 @@
 
 <script>
 import { defineComponent } from 'vue'
-import { cloneDeep } from 'lodash'
 import Button from '@/client/components/Button'
 
 export default defineComponent({

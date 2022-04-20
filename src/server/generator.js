@@ -8,8 +8,6 @@ const createLayer = async (layerType, trait, filters) => {
   console.log(`Creating ${layerType} layer with trait ${trait.fileName}`)
   const layerJimp = await Jimp.read(path.resolve(__dirname, '../traits', trait.filePath))
 
-  console.log(1, filters)
-
   filters = filters.filter(filter => filter?.type)
   filters = filters.map(({ type, amount, degree, color }) => {
     let params
@@ -38,8 +36,6 @@ const createLayer = async (layerType, trait, filters) => {
 
     return { apply: type.toLowerCase(), params }
   })
-
-  console.log(2, filters)
 
   layerJimp.color(filters)
 
