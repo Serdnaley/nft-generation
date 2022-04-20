@@ -19,7 +19,7 @@ export default defineComponent({
 <style lang="scss">
 .Button {
   display: inline-block;
-  padding: 5px 10px;
+  padding: 3px 7px;
   user-select: none;
   cursor: pointer;
   background: white;
@@ -27,6 +27,7 @@ export default defineComponent({
   border: 1px solid black;
   color: black;
   transition: .3s;
+  font-size: 14px;
 
   &:hover {
     transition: none;

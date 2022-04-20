@@ -1,28 +1,33 @@
-const app = require('express')()
+const path = require('path')
+const express = require('express')
+const bodyParser = require('body-parser')
+const cors = require('cors')
 const { buildImage } = require('./generator')
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-app.get('/image.png', async (req, res) => {
-  const layersStr = req.query.layers || '[]'
+const app = express()
 
-  let layers = []
-  try {
-    layers = JSON.parse(layersStr)
-  } catch (e) {
-    console.error(e)
-    return res.status(400).send('Invalid layers')
-  }
+app.use(bodyParser())
+app.use(cors())
 
-  const { filePath, fileName } = await buildImage(layers).catch((e) => {
-    console.error(e)
-    return res.status(500).send('Error generating image')
-  })
+app.post('/image', async (req, res) => {
+  console.log(req.body)
+  const layers = req.body.layers || []
 
-  await sleep(1000)
+  const { filePath, fileName } = await buildImage(layers)
+    .catch((error) => {
+      console.error(error)
+      res.status(500).send('Error generating image')
+      throw error
+    })
 
-  return filePath && res.type('png').attachment(fileName).sendFile(filePath)
+  await sleep(100)
+
+  return res.json({ filePath, fileName })
 })
+
+app.use('/output', express.static(path.resolve(__dirname, '../../out')))
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000!')

@@ -5,25 +5,18 @@
         Layers
       </div>
 
-      <transition-group name="App__list-transition-">
-        <LayerOptions
-          v-for="(layer, index) in layers"
-          :key="layer.id"
-          :index="index"
-          :layer="layer"
-          class="App__options-panel-item"
-          @up="up(index)"
-          @down="down(index)"
-          @remove="remove(index)"
-        />
-      </transition-group>
-
-      <Button
-        class="App__options-panel-add-button"
-        @click="add()"
+      <List
+        :items="layers"
+        :constructor="LayerOptionsConstructor"
+        add-button-text="New layer"
       >
-        New layer
-      </Button>
+        <template #item="{ item, index }">
+          <LayerOptions
+            :index="index"
+            :layer="item"
+          />
+        </template>
+      </List>
     </div>
 
     <div class="App__result">
@@ -33,10 +26,11 @@
       />
 
       <Button
-        @click="render()"
         class="App__result-button"
+        :disabled="isLoading"
+        @click="!isLoading && render()"
       >
-        Render
+        {{ isLoading ? 'Loading...' : 'Render' }}
       </Button>
     </div>
   </div>
@@ -44,20 +38,22 @@
 
 <script>
 import { defineComponent, reactive, ref } from 'vue'
-import { layerTypes, rarityTypes } from '@/traits/enums'
+import { layerTypes, rarityTypes } from '@/enums'
+import { LayerOptions as LayerOptionsConstructor } from '@/client/entities'
 import LayerOptions from '@/client/components/LayerOptions'
 import LazyLoadImage from '@/client/components/LazyLoadImage'
 import Button from '@/client/components/Button'
-import { traits } from '@/traits'
+import List from '@/client/components/List'
 
 const {
   VUE_APP_SERVER_URL,
 } = process.env
 
 export default defineComponent({
-  name: 'ExamplesPage',
+  name: 'App',
 
   components: {
+    List,
     Button,
     LazyLoadImage,
     LayerOptions,
@@ -65,94 +61,54 @@ export default defineComponent({
 
   setup () {
     const layers = reactive([
-      {
-        id: 1,
-        layerType: layerTypes.BACKGROUND,
-        trait: traits.find(trait => trait.layerType === layerTypes.BACKGROUND),
-      },
-      {
-        id: 2,
-        layerType: layerTypes.BODY,
-        trait: traits.find(trait => trait.layerType === layerTypes.BODY),
-      },
-      {
-        id: 3,
-        layerType: layerTypes.HEAD,
-        trait: traits.find(trait => trait.layerType === layerTypes.HEAD),
-      },
-      {
-        id: 4,
-        layerType: layerTypes.OUTFIT,
-        trait: traits.find(trait => trait.layerType === layerTypes.OUTFIT),
-      },
-      {
-        id: 5,
-        layerType: layerTypes.NOSE,
-        trait: traits.find(trait => trait.layerType === layerTypes.NOSE),
-      },
-      {
-        id: 5,
-        layerType: layerTypes.MOUTH,
-        trait: traits.find(trait => trait.layerType === layerTypes.MOUTH),
-      },
-      {
-        id: 6,
-        layerType: layerTypes.EYES,
-        trait: traits.find(trait => trait.layerType === layerTypes.EYES),
-      },
-      {
-        id: 7,
-        layerType: layerTypes.SUNGLASSES,
-        trait: traits.find(trait => trait.layerType === layerTypes.SUNGLASSES),
-      },
-      {
-        id: 8,
-        layerType: layerTypes.HEADWEAR,
-        trait: traits.find(trait => trait.layerType === layerTypes.HEADWEAR),
-      },
+      new LayerOptionsConstructor({ layerType: layerTypes.BACKGROUND }),
+      new LayerOptionsConstructor({ layerType: layerTypes.BODY }),
+      new LayerOptionsConstructor({ layerType: layerTypes.HEAD }),
+      new LayerOptionsConstructor({ layerType: layerTypes.OUTFIT }),
+      new LayerOptionsConstructor({ layerType: layerTypes.NOSE }),
+      new LayerOptionsConstructor({ layerType: layerTypes.MOUTH }),
+      new LayerOptionsConstructor({ layerType: layerTypes.EYES }),
+      new LayerOptionsConstructor({ layerType: layerTypes.SUNGLASSES }),
+      new LayerOptionsConstructor({ layerType: layerTypes.HEADWEAR }),
     ])
 
     const resultImageUrl = ref(null)
 
-    const render = () => resultImageUrl.value = `${VUE_APP_SERVER_URL}/image.png?layers=${JSON.stringify(layers)}`
+    const isLoading = ref(false)
+    const render = async () => {
+      isLoading.value = true
+
+      const res = await fetch(`${VUE_APP_SERVER_URL}/image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ layers }),
+      })
+        .catch(() => {
+          alert('Something went wrong on server')
+        })
+
+      if (res?.status !== 200) {
+        return alert('Something went wrong on server')
+      } else {
+        const { fileName } = await res.json()
+
+        resultImageUrl.value = `${VUE_APP_SERVER_URL}/output/${fileName}`
+      }
+
+      isLoading.value = false
+    }
     render()
 
-    const up = (index) => {
-      if (index <= 0) return
-
-      const layer = layers[index]
-
-      layers[index] = layers[index - 1]
-      layers[index - 1] = layer
-    }
-
-    const down = (index) => {
-      if (index >= layers.length - 1) return
-
-      const layer = layers[index]
-
-      layers[index] = layers[index + 1]
-      layers[index + 1] = layer
-    }
-
-    const remove = (index) => layers.splice(index, 1)
-
-    const add = () => layers.push({
-      id: Math.random(),
-      layerType: layerTypes.BODY,
-      trait: null,
-    })
-
     return {
+      LayerOptionsConstructor,
       layers,
       rarityTypes,
       layerTypes,
       resultImageUrl,
+      isLoading,
       render,
-      up,
-      down,
-      remove,
-      add,
     }
   },
 })
@@ -169,19 +125,10 @@ body {
 
   &__options-panel {
     width: 50%;
-    padding: 15px;
-    padding-bottom: 150px;
+    padding: 15px 15px 150px;
 
     &-title {
       font-size: 64px;
-    }
-
-    &-item {
-      margin-top: 30px;
-    }
-
-    &-add-button {
-      margin-top: 30px;
     }
   }
 
@@ -203,26 +150,6 @@ body {
 
     &-button {
       margin-top: 30px;
-    }
-  }
-
-  &__list-transition {
-    &--move {
-      transition: .6s ease;
-    }
-
-    &--enter-active,
-    &--leave-active {
-      transition: opacity .6s;
-    }
-
-    &--enter,
-    &--leave-to {
-      opacity: 0;
-    }
-
-    &--leave-active {
-      position: absolute;
     }
   }
 }

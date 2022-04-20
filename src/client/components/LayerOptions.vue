@@ -2,31 +2,24 @@
   <div class="LayerOptions">
     Layer {{ index }}
 
-    <select v-model="layer.layerType">
-      <option v-for="layerType in layerTypes" :value="layerType">
-        {{ layerType }}
-      </option>
-    </select>
+    <Select
+      v-model="layer.layerType"
+      :options="layerTypes"
+    />
 
-    <div class="LayerOptions__actions">
-      <Button
-        class="LayerOptions__actions-button"
-        @click="$emit('up')"
+    <div class="LayerOptions__filters">
+      <List
+        :items="layer.filters"
+        :constructor="FilterOptionsConstructor"
+        add-button-text="New filter"
       >
-        Up
-      </Button>
-      <Button
-        class="LayerOptions__actions-button"
-        @click="$emit('down')"
-      >
-        Down
-      </Button>
-      <Button
-        class="LayerOptions__actions-button"
-        @click="$emit('remove')"
-      >
-        Remove
-      </Button>
+        <template #item="{ item, index }">
+          <FilterOptions
+            :index="index"
+            :filter="item"
+          />
+        </template>
+      </List>
     </div>
 
     <div class="LayerOptions__traits-wrapper">
@@ -54,19 +47,30 @@
 
 <script>
 import { defineComponent, computed } from 'vue'
-import { layerTypes } from '@/traits/enums'
+import { layerTypes } from '@/enums'
 import { traits } from '@/traits'
 import TraitCard from '@/client/components/TraitCard'
 import Button from '@/client/components/Button'
+import Select from '@/client/components/Select'
+import FilterOptions from '@/client/components/FilterOptions'
+import { LayerOptions } from '@/client/entities'
+import List from '@/client/components/List'
+import { FilterOptions as FilterOptionsConstructor } from '@/client/entities'
 
 export default defineComponent({
   name: 'LayerOptions',
 
-  components: { Button, TraitCard },
+  components: {
+    List,
+    FilterOptions,
+    Select,
+    Button,
+    TraitCard,
+  },
 
   props: {
     layer: {
-      type: Object,
+      type: LayerOptions,
       required: true
     },
 
@@ -82,6 +86,7 @@ export default defineComponent({
     const filteredTraits = computed(() => traits.filter(trait => trait.layerType === props.layer.layerType))
 
     return {
+      FilterOptionsConstructor,
       filteredTraits,
       layerTypes,
     }
@@ -91,22 +96,8 @@ export default defineComponent({
 
 <style lang="scss">
 .LayerOptions {
-  position: relative;
-  border: 1px solid black;
-  border-radius: 5px;
-  padding: 15px;
-  background: white;
-
-  &__actions {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-
-    &-button {
-      &:not(:last-child) {
-        margin-right: 10px;
-      }
-    }
+  &__filters {
+    margin-top: 15px;
   }
 
   &__traits {

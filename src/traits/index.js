@@ -2,7 +2,7 @@ const { flatMap, keys, uniqBy } = require('lodash')
 const {
   rarityTypes,
   layerTypes,
-} = require('./enums')
+} = require('../enums')
 
 const prefixByLayerType = {
   [layerTypes.BACKGROUND]: 'Background',
