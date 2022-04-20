@@ -1,4 +1,14 @@
-# medium-tutorial-nft-generation
-Generate random NFTs with Node.js + Sourcecode 
-Link: https://medium.com/@jcmacur/generate-random-nfts-with-node-js-sourcecode-b93a2ab411fe
-.
+# NFT generator with filters
+
+## Setup
+
+```bash
+# Install dependencies
+yarn install
+
+# Start server
+yarn server:dev
+
+# Start client server
+yarn client:serve
+```
