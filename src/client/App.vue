@@ -20,6 +20,8 @@
     </div>
 
     <div class="App__result">
+      <p>Image size: 2048x2048</p>
+
       <LazyLoadImage
         :src="resultImageUrl"
         class="App__result-img"
@@ -32,12 +34,16 @@
       >
         {{ isLoading ? 'Loading...' : 'Render' }}
       </Button>
+
+      <p v-if="timeSpent">
+        Rendered in {{ timeSpentFormatted }}
+      </p>
     </div>
   </div>
 </template>
 
 <script>
-import { defineComponent, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref, computed } from 'vue'
 import { layerTypes, rarityTypes } from '@/enums'
 import { LayerOptions as LayerOptionsConstructor } from '@/client/entities'
 import LayerOptions from '@/client/components/LayerOptions'
@@ -74,9 +80,18 @@ export default defineComponent({
 
     const resultImageUrl = ref(null)
 
+    const timeSpent = ref(0)
+    const timeSpentFormatted = computed(() => {
+      return timeSpent.value >= 1000
+        ? `${(timeSpent.value / 1000).toFixed(2)}s`
+        : `${(timeSpent.value).toFixed(2)}ms`
+    })
+
     const isLoading = ref(false)
     const render = async () => {
       isLoading.value = true
+
+      const startTime = Date.now()
 
       const res = await fetch(`${VUE_APP_SERVER_URL}/image`, {
         method: 'POST',
@@ -97,6 +112,8 @@ export default defineComponent({
         resultImageUrl.value = `${VUE_APP_SERVER_URL}/output/${fileName}`
       }
 
+      timeSpent.value = Date.now() - startTime
+
       isLoading.value = false
     }
     render()
@@ -108,6 +125,8 @@ export default defineComponent({
       layerTypes,
       resultImageUrl,
       isLoading,
+      timeSpent,
+      timeSpentFormatted,
       render,
     }
   },
